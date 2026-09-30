@@ -39,16 +39,29 @@
       display: flex;
     }
 
-    /* Canvas background for matrix/grid effect */
-    #bg-canvas {
+    /* Video Background */
+    #bg-video {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
+      object-fit: cover;
       z-index: 0;
       pointer-events: none;
-      opacity: 0.35;
+      filter: brightness(0.4) contrast(1.1);
+    }
+
+    /* Video Overlay Tint */
+    .video-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(circle at 50% 50%, rgba(5, 7, 15, 0.3), rgba(5, 7, 15, 0.85));
+      z-index: 0;
+      pointer-events: none;
     }
 
     /* Layout */
@@ -63,7 +76,7 @@
     /* Sidebar Navigation */
     .sidebar {
       width: 240px;
-      background: rgba(8, 11, 22, 0.85);
+      background: rgba(8, 11, 22, 0.75);
       border-right: 1px solid var(--panel-border);
       backdrop-filter: blur(20px);
       padding: 24px 16px;
@@ -362,7 +375,7 @@
 
     /* Live Cyber Terminal Log */
     .terminal-section {
-      background: #020408;
+      background: rgba(2, 4, 8, 0.85);
       border: 1px solid var(--panel-border);
       border-radius: 16px;
       padding: 16px;
@@ -372,6 +385,7 @@
       display: flex;
       flex-direction: column;
       box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
     }
 
     .terminal-header {
@@ -404,7 +418,11 @@
 </head>
 <body>
 
-  <canvas id="bg-canvas"></canvas>
+  <!-- Video Background -->
+  <video id="bg-video" autoplay loop muted playsinline>
+    <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260613_180732_a54afbf6-b30d-470e-861f-669871f09f67.mp4" type="video/mp4">
+  </video>
+  <div class="video-overlay"></div>
 
   <div class="app-container">
     <!-- Sidebar -->
@@ -654,38 +672,6 @@
       document.getElementById('count-online').innerText = online;
       document.getElementById('count-offline').innerText = offline;
     }
-
-    // Canvas Animated Grid Background
-    const canvas = document.getElementById('bg-canvas');
-    const ctx = canvas.getContext('2d');
-    
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-
-    function drawGrid() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = 'rgba(0, 242, 254, 0.05)';
-      ctx.lineWidth = 1;
-
-      const gridSize = 40;
-      for (let x = 0; x < canvas.width; x += gridSize) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, canvas.height);
-        ctx.stroke();
-      }
-      for (let y = 0; y < canvas.height; y += gridSize) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(canvas.width, y);
-        ctx.stroke();
-      }
-    }
-    drawGrid();
   </script>
 </body>
 </html>
