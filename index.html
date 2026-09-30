@@ -3,121 +3,248 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PC Control Hub - Управление ПК</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <title>CYBER-HUB // PC Control Center 2026</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-dark: #0b0f19;
-      --card-bg: rgba(23, 31, 51, 0.7);
-      --card-border: rgba(255, 255, 255, 0.08);
-      --accent-cyan: #00f2fe;
-      --accent-purple: #7f00ff;
-      --status-online: #10b981;
-      --status-offline: #ef4444;
-      --text-main: #f3f4f6;
-      --text-muted: #9ca3af;
+      --bg-main: #05070f;
+      --panel-bg: rgba(13, 18, 36, 0.65);
+      --panel-border: rgba(0, 242, 254, 0.15);
+      --panel-glow: rgba(0, 242, 254, 0.05);
+      
+      --neon-cyan: #00f2fe;
+      --neon-purple: #9d4edd;
+      --neon-emerald: #10b981;
+      --neon-rose: #ff0055;
+      
+      --text-main: #f8fafc;
+      --text-muted: #64748b;
+      --font-main: 'Plus Jakarta Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Inter', sans-serif;
+      user-select: none;
     }
 
     body {
-      background-color: var(--bg-dark);
-      background-image: radial-gradient(circle at 50% 0%, rgba(127, 0, 255, 0.15), transparent 50%);
+      background-color: var(--bg-main);
       color: var(--text-main);
-      padding: 20px;
+      font-family: var(--font-main);
       min-height: 100vh;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    /* Header */
-    header {
+      overflow-x: hidden;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
-      gap: 16px;
     }
 
-    .title-group h1 {
-      font-size: 24px;
-      font-weight: 700;
-      background: linear-gradient(135deg, #00f2fe, #4facfe);
+    /* Canvas background for matrix/grid effect */
+    #bg-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.35;
+    }
+
+    /* Layout */
+    .app-container {
+      display: flex;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+      position: relative;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      width: 240px;
+      background: rgba(8, 11, 22, 0.85);
+      border-right: 1px solid var(--panel-border);
+      backdrop-filter: blur(20px);
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 8px;
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+    }
+
+    .brand-title {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      background: linear-gradient(90deg, #fff, var(--neon-cyan));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
-    .title-group p {
-      font-size: 13px;
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 12px;
       color: var(--text-muted);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.25s ease;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      color: var(--text-main);
+      background: rgba(0, 242, 254, 0.08);
+      border: 1px solid rgba(0, 242, 254, 0.2);
+      box-shadow: inset 0 0 10px rgba(0, 242, 254, 0.05);
+    }
+
+    .nav-item.active {
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.15);
+    }
+
+    /* Main Area */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 24px 32px;
+      gap: 24px;
+    }
+
+    /* Top Stats Dashboard */
+    .top-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .stat-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      padding: 18px 20px;
+      border-radius: 16px;
+      backdrop-filter: blur(16px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--neon-cyan);
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+      font-size: 26px;
+      font-weight: 800;
+      font-family: var(--font-mono);
       margin-top: 4px;
     }
 
-    /* Global Action Buttons Bar */
-    .global-actions {
+    /* Quick Action Toolbar */
+    .control-toolbar {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 18px;
+      padding: 16px 20px;
+      backdrop-filter: blur(16px);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .btn-group {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
-      background: var(--card-bg);
-      padding: 16px;
-      border-radius: 16px;
-      border: 1px solid var(--card-border);
-      backdrop-filter: blur(12px);
-      margin-bottom: 32px;
     }
 
     .btn {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--card-border);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--panel-border);
       color: var(--text-main);
-      padding: 10px 16px;
+      padding: 10px 18px;
       border-radius: 10px;
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
       transition: all 0.2s ease;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 8px;
     }
 
     .btn:hover {
-      background: rgba(255, 255, 255, 0.12);
-      transform: translateY(-1px);
+      background: rgba(0, 242, 254, 0.15);
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
     }
 
     .btn-danger {
-      background: rgba(239, 68, 68, 0.15);
-      border-color: rgba(239, 68, 68, 0.3);
-      color: #fca5a5;
+      border-color: rgba(255, 0, 85, 0.4);
+      color: #ff99bb;
     }
 
     .btn-danger:hover {
-      background: rgba(239, 68, 68, 0.3);
+      background: rgba(255, 0, 85, 0.25);
+      box-shadow: 0 0 15px rgba(255, 0, 85, 0.3);
     }
 
-    .btn-success {
-      background: rgba(16, 185, 129, 0.15);
-      border-color: rgba(16, 185, 129, 0.3);
-      color: #6ee7b7;
+    /* Zones Grid */
+    .zone-container {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
     }
 
-    .btn-success:hover {
-      background: rgba(16, 185, 129, 0.3);
-    }
-
-    /* Zones & Grid */
-    .zone-section {
-      margin-bottom: 32px;
+    .zone-block {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 20px;
+      padding: 20px;
+      backdrop-filter: blur(16px);
     }
 
     .zone-header {
@@ -125,57 +252,59 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 16px;
-      border-bottom: 1px solid var(--card-border);
-      padding-bottom: 8px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
 
     .zone-title {
-      font-size: 18px;
-      font-weight: 600;
+      font-size: 16px;
+      font-weight: 700;
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
-    .edit-zone-btn {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      font-size: 12px;
-    }
-
-    .edit-zone-btn:hover {
-      color: var(--accent-cyan);
+    .zone-tag {
+      font-size: 10px;
+      font-family: var(--font-mono);
+      padding: 3px 8px;
+      background: rgba(0, 242, 254, 0.1);
+      border: 1px solid var(--neon-cyan);
+      color: var(--neon-cyan);
+      border-radius: 6px;
     }
 
     .pc-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
       gap: 16px;
     }
 
-    /* PC Card */
+    /* PC Cards */
     .pc-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
+      background: rgba(10, 15, 30, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 14px;
       padding: 16px;
       position: relative;
-      backdrop-filter: blur(8px);
-      transition: border-color 0.2s ease;
+      transition: all 0.25s ease;
+    }
+
+    .pc-card:hover {
+      border-color: var(--neon-purple);
+      box-shadow: 0 4px 20px rgba(157, 78, 221, 0.15);
     }
 
     .pc-card.online {
-      border-left: 4px solid var(--status-online);
+      border-left: 3px solid var(--neon-emerald);
     }
 
     .pc-card.offline {
-      border-left: 4px solid var(--status-offline);
-      opacity: 0.7;
+      border-left: 3px solid var(--neon-rose);
+      opacity: 0.65;
     }
 
-    .pc-card-header {
+    .pc-top {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -185,210 +314,378 @@
     .pc-name {
       font-weight: 700;
       font-size: 15px;
+      font-family: var(--font-mono);
     }
 
-    .status-badge {
-      font-size: 10px;
-      font-weight: 700;
-      padding: 4px 8px;
-      border-radius: 20px;
-      text-transform: uppercase;
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
     }
 
-    .status-badge.online {
-      background: rgba(16, 185, 129, 0.2);
-      color: var(--status-online);
+    .online .status-dot {
+      background: var(--neon-emerald);
+      box-shadow: 0 0 8px var(--neon-emerald);
+      animation: pulse 2s infinite;
     }
 
-    .status-badge.offline {
-      background: rgba(239, 68, 68, 0.2);
-      color: var(--status-offline);
+    .offline .status-dot {
+      background: var(--neon-rose);
     }
 
-    .pc-info {
-      font-size: 12px;
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.3; }
+      100% { opacity: 1; }
+    }
+
+    .pc-details {
+      font-family: var(--font-mono);
+      font-size: 11px;
       color: var(--text-muted);
-      margin-bottom: 16px;
-      line-height: 1.5;
+      margin-bottom: 14px;
+      line-height: 1.6;
     }
 
-    .pc-actions {
+    .pc-controls {
       display: flex;
       gap: 8px;
     }
 
-    .pc-actions .btn {
+    .pc-controls .btn {
       flex: 1;
       justify-content: center;
-      padding: 6px 10px;
+      padding: 6px;
       font-size: 11px;
     }
+
+    /* Live Cyber Terminal Log */
+    .terminal-section {
+      background: #020408;
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      padding: 16px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      max-height: 180px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+    }
+
+    .terminal-header {
+      color: var(--neon-cyan);
+      font-weight: 700;
+      margin-bottom: 8px;
+      font-size: 11px;
+      letter-spacing: 1px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .terminal-body {
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      color: #a0aec0;
+    }
+
+    .log-entry {
+      line-height: 1.4;
+    }
+
+    .log-time { color: var(--text-muted); }
+    .log-success { color: var(--neon-emerald); }
+    .log-danger { color: var(--neon-rose); }
+    .log-cmd { color: var(--neon-cyan); }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <header>
-      <div class="title-group">
-        <h1>PC Control Hub</h1>
-        <p>Система удалённого управления и контроля питания</p>
-      </div>
-      <button class="btn btn-success" onclick="alert('Функция добавления нового ПК')">+ Добавить ПК</button>
-    </header>
+  <canvas id="bg-canvas"></canvas>
 
-    <!-- Быстрые глобальные действия -->
-    <div class="global-actions">
-      <button class="btn btn-danger" onclick="powerOffAll()">⚡ Отключить все ПК</button>
-      <button class="btn btn-success" onclick="powerOnAll()">🔌 Включить все (WoL)</button>
-      <button class="btn" onclick="powerOffZone('standard')">🚫 Выключить Стандарт</button>
-      <button class="btn" onclick="powerOffZone('vip')">👑 Выключить VIP</button>
-      <button class="btn" onclick="powerOffZone('duo')">👥 Выключить Duo</button>
-    </div>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">CC</div>
+        <div class="brand-title">CYBERHUB</div>
+      </div>
 
-    <!-- Секция: Стандарт -->
-    <div class="zone-section" id="zone-standard">
-      <div class="zone-header">
-        <div class="zone-title">
-          <span id="title-standard">Зона «Стандарт»</span>
-          <button class="edit-zone-btn" onclick="renameZone('standard')">✏️ Изменить название</button>
+      <ul class="nav-list">
+        <li class="nav-item active">⚡ Дашборд</li>
+        <li class="nav-item">🖥️ Устройства</li>
+        <li class="nav-item">🏷️ Зоны</li>
+        <li class="nav-item">📊 Логи</li>
+        <li class="nav-item">⚙️ Настройки</li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      
+      <!-- Top Metrics -->
+      <section class="top-stats">
+        <div class="stat-card">
+          <div>
+            <div class="stat-label">Всего компьютеров</div>
+            <div class="stat-value" id="count-total">4</div>
+          </div>
+          <span style="font-size: 24px;">🖥️</span>
         </div>
-        <button class="btn btn-danger" style="padding: 4px 10px; font-size: 11px;" onclick="powerOffZone('standard')">Выключить зону</button>
-      </div>
-      <div class="pc-grid">
-        <div class="pc-card online" id="pc-1">
-          <div class="pc-card-header">
-            <span class="pc-name">ПК-01</span>
-            <span class="status-badge online">Online</span>
+        <div class="stat-card">
+          <div>
+            <div class="stat-label">В сети (Online)</div>
+            <div class="stat-value" style="color: var(--neon-emerald);" id="count-online">3</div>
           </div>
-          <div class="pc-info">
-            IP: 192.168.1.101<br>
-            MAC: AA:BB:CC:DD:EE:01
+          <span style="font-size: 24px;">🟢</span>
+        </div>
+        <div class="stat-card">
+          <div>
+            <div class="stat-label">Выключены (Offline)</div>
+            <div class="stat-value" style="color: var(--neon-rose);" id="count-offline">1</div>
           </div>
-          <div class="pc-actions">
-            <button class="btn btn-danger" onclick="togglePC('pc-1', false)">Выкл</button>
-            <button class="btn btn-success" onclick="togglePC('pc-1', true)">Вкл</button>
+          <span style="font-size: 24px;">🔴</span>
+        </div>
+      </section>
+
+      <!-- Global Actions Toolbar -->
+      <section class="control-toolbar">
+        <div class="btn-group">
+          <button class="btn btn-danger" onclick="executeGlobal('SHUTDOWN_ALL')">🛑 Выключить всё</button>
+          <button class="btn" onclick="executeGlobal('WOL_ALL')">🔌 Включить всё (WoL)</button>
+        </div>
+        <div class="btn-group">
+          <button class="btn" onclick="executeZone('standard', 'SHUTDOWN')">Отключить Стандарт</button>
+          <button class="btn" onclick="executeZone('vip', 'SHUTDOWN')">Отключить VIP</button>
+          <button class="btn" onclick="executeZone('duo', 'SHUTDOWN')">Отключить Duo</button>
+        </div>
+      </section>
+
+      <!-- PC Zones -->
+      <section class="zone-container">
+        
+        <!-- Standard Zone -->
+        <div class="zone-block" id="zone-standard">
+          <div class="zone-header">
+            <div class="zone-title">
+              <span id="title-standard">Зона «Стандарт»</span>
+              <span class="zone-tag">2 ПК</span>
+            </div>
+            <button class="btn" style="padding: 4px 10px; font-size: 11px;" onclick="renameZone('standard')">✏️ Изменить название</button>
+          </div>
+          <div class="pc-grid">
+            <div class="pc-card online" id="pc-1">
+              <div class="pc-top">
+                <span class="pc-name">PC-01</span>
+                <span class="status-dot"></span>
+              </div>
+              <div class="pc-details">
+                IP: 192.168.1.101<br>
+                MAC: AA:BB:CC:DD:01
+              </div>
+              <div class="pc-controls">
+                <button class="btn btn-danger" onclick="setPCState('pc-1', false)">Выкл</button>
+                <button class="btn" onclick="setPCState('pc-1', true)">Вкл</button>
+              </div>
+            </div>
+
+            <div class="pc-card online" id="pc-2">
+              <div class="pc-top">
+                <span class="pc-name">PC-02</span>
+                <span class="status-dot"></span>
+              </div>
+              <div class="pc-details">
+                IP: 192.168.1.102<br>
+                MAC: AA:BB:CC:DD:02
+              </div>
+              <div class="pc-controls">
+                <button class="btn btn-danger" onclick="setPCState('pc-2', false)">Выкл</button>
+                <button class="btn" onclick="setPCState('pc-2', true)">Вкл</button>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="pc-card online" id="pc-2">
-          <div class="pc-card-header">
-            <span class="pc-name">ПК-02</span>
-            <span class="status-badge online">Online</span>
+        <!-- VIP Zone -->
+        <div class="zone-block" id="zone-vip">
+          <div class="zone-header">
+            <div class="zone-title">
+              <span id="title-vip">Зона «VIP Room»</span>
+              <span class="zone-tag">1 ПК</span>
+            </div>
+            <button class="btn" style="padding: 4px 10px; font-size: 11px;" onclick="renameZone('vip')">✏️ Изменить название</button>
           </div>
-          <div class="pc-info">
-            IP: 192.168.1.102<br>
-            MAC: AA:BB:CC:DD:EE:02
-          </div>
-          <div class="pc-actions">
-            <button class="btn btn-danger" onclick="togglePC('pc-2', false)">Выкл</button>
-            <button class="btn btn-success" onclick="togglePC('pc-2', true)">Вкл</button>
+          <div class="pc-grid">
+            <div class="pc-card offline" id="pc-3">
+              <div class="pc-top">
+                <span class="pc-name">VIP-01</span>
+                <span class="status-dot"></span>
+              </div>
+              <div class="pc-details">
+                IP: 192.168.1.201<br>
+                MAC: AA:BB:CC:DD:03
+              </div>
+              <div class="pc-controls">
+                <button class="btn btn-danger" onclick="setPCState('pc-3', false)">Выкл</button>
+                <button class="btn" onclick="setPCState('pc-3', true)">Вкл</button>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Секция: VIP -->
-    <div class="zone-section" id="zone-vip">
-      <div class="zone-header">
-        <div class="zone-title">
-          <span id="title-vip">Зона «VIP»</span>
-          <button class="edit-zone-btn" onclick="renameZone('vip')">✏️ Изменить название</button>
+        <!-- Duo Zone -->
+        <div class="zone-block" id="zone-duo">
+          <div class="zone-header">
+            <div class="zone-title">
+              <span id="title-duo">Зона «Duo Room»</span>
+              <span class="zone-tag">1 ПК</span>
+            </div>
+            <button class="btn" style="padding: 4px 10px; font-size: 11px;" onclick="renameZone('duo')">✏️ Изменить название</button>
+          </div>
+          <div class="pc-grid">
+            <div class="pc-card online" id="pc-4">
+              <div class="pc-top">
+                <span class="pc-name">DUO-01</span>
+                <span class="status-dot"></span>
+              </div>
+              <div class="pc-details">
+                IP: 192.168.1.301<br>
+                MAC: AA:BB:CC:DD:04
+              </div>
+              <div class="pc-controls">
+                <button class="btn btn-danger" onclick="setPCState('pc-4', false)">Выкл</button>
+                <button class="btn" onclick="setPCState('pc-4', true)">Вкл</button>
+              </div>
+            </div>
+          </div>
         </div>
-        <button class="btn btn-danger" style="padding: 4px 10px; font-size: 11px;" onclick="powerOffZone('vip')">Выключить зону</button>
-      </div>
-      <div class="pc-grid">
-        <div class="pc-card offline" id="pc-3">
-          <div class="pc-card-header">
-            <span class="pc-name">VIP-01</span>
-            <span class="status-badge offline">Offline</span>
-          </div>
-          <div class="pc-info">
-            IP: 192.168.1.201<br>
-            MAC: AA:BB:CC:DD:EE:03
-          </div>
-          <div class="pc-actions">
-            <button class="btn btn-danger" onclick="togglePC('pc-3', false)">Выкл</button>
-            <button class="btn btn-success" onclick="togglePC('pc-3', true)">Вкл</button>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Секция: Duo -->
-    <div class="zone-section" id="zone-duo">
-      <div class="zone-header">
-        <div class="zone-title">
-          <span id="title-duo">Зона «Duo Room»</span>
-          <button class="edit-zone-btn" onclick="renameZone('duo')">✏️ Изменить название</button>
-        </div>
-        <button class="btn btn-danger" style="padding: 4px 10px; font-size: 11px;" onclick="powerOffZone('duo')">Выключить зону</button>
-      </div>
-      <div class="pc-grid">
-        <div class="pc-card online" id="pc-4">
-          <div class="pc-card-header">
-            <span class="pc-name">DUO-01</span>
-            <span class="status-badge online">Online</span>
-          </div>
-          <div class="pc-info">
-            IP: 192.168.1.301<br>
-            MAC: AA:BB:CC:DD:EE:04
-          </div>
-          <div class="pc-actions">
-            <button class="btn btn-danger" onclick="togglePC('pc-4', false)">Выкл</button>
-            <button class="btn btn-success" onclick="togglePC('pc-4', true)">Вкл</button>
-          </div>
-        </div>
-      </div>
-    </div>
+      </section>
 
+      <!-- Live Terminal Output -->
+      <section class="terminal-section">
+        <div class="terminal-header">
+          <span>SYSTEM TERMINAL // LIVE LOGS</span>
+          <span style="color: var(--neon-emerald);">● CONNECTED</span>
+        </div>
+        <div class="terminal-body" id="terminal-body">
+          <div class="log-entry"><span class="log-time">[12:00:00]</span> <span class="log-cmd">SYSTEM_INIT:</span> ПО успешно запущенно. Ожидание WebSocket команд...</div>
+        </div>
+      </section>
+
+    </main>
   </div>
 
   <script>
-    // Изменение статуса отдельного ПК
-    function togglePC(pcId, turnOn) {
-      const card = document.getElementById(pcId);
-      const badge = card.querySelector('.status-badge');
+    // Live Terminal Logger
+    function logMessage(msg, type = 'info') {
+      const body = document.getElementById('terminal-body');
+      const time = new Date().toLocaleTimeString();
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
       
+      let typeClass = 'log-cmd';
+      if (type === 'success') typeClass = 'log-success';
+      if (type === 'danger') typeClass = 'log-danger';
+
+      entry.innerHTML = `<span class="log-time">[${time}]</span> <span class="${typeClass}">> ${msg}</span>`;
+      body.appendChild(entry);
+      body.scrollTop = body.scrollHeight;
+    }
+
+    // Toggle Individual PC State
+    function setPCState(pcId, turnOn) {
+      const card = document.getElementById(pcId);
+      const pcName = card.querySelector('.pc-name').innerText;
+
       if (turnOn) {
         card.className = 'pc-card online';
-        badge.className = 'status-badge online';
-        badge.innerText = 'Online';
+        logMessage(`[WOL] Отправка Magic Packet на ${pcName}... Питание подано.`, 'success');
       } else {
         card.className = 'pc-card offline';
-        badge.className = 'status-badge offline';
-        badge.innerText = 'Offline';
+        logMessage(`[SHUTDOWN] Сигнал выключения отправлен на ${pcName}.`, 'danger');
       }
+      updateMetrics();
     }
 
-    // Выключение всех ПК в конкретной зоне
-    function powerOffZone(zoneKey) {
+    // Execute Zone Actions
+    function executeZone(zoneKey, action) {
       const zone = document.getElementById(`zone-${zoneKey}`);
-      if (zone) {
-        const cards = zone.querySelectorAll('.pc-card');
-        cards.forEach(card => togglePC(card.id, false));
+      const cards = zone.querySelectorAll('.pc-card');
+      const zoneName = document.getElementById(`title-${zoneKey}`).innerText;
+      
+      logMessage(`Команда ${action} для секции ${zoneName}...`, 'cmd');
+      cards.forEach(card => setPCState(card.id, action === 'WOL'));
+    }
+
+    // Global Actions
+    function executeGlobal(action) {
+      if (action === 'SHUTDOWN_ALL') {
+        logMessage('ГЛОБАЛЬНАЯ КОМАНДА: Выключение всех устройств сети!', 'danger');
+        document.querySelectorAll('.pc-card').forEach(card => setPCState(card.id, false));
+      } else {
+        logMessage('ГЛОБАЛЬНАЯ КОМАНДА: Wake-on-LAN для всех ПК...', 'success');
+        document.querySelectorAll('.pc-card').forEach(card => setPCState(card.id, true));
       }
     }
 
-    // Выключить всё
-    function powerOffAll() {
-      document.querySelectorAll('.pc-card').forEach(card => togglePC(card.id, false));
-    }
-
-    // Включить всё
-    function powerOnAll() {
-      document.querySelectorAll('.pc-card').forEach(card => togglePC(card.id, true));
-    }
-
-    // Редактирование названия зоны
+    // Rename Zone
     function renameZone(zoneKey) {
       const titleElem = document.getElementById(`title-${zoneKey}`);
       const currentName = titleElem.innerText.replace('Зона «', '').replace('»', '');
-      const newName = prompt('Введите новое название для этой зоны:', currentName);
+      const newName = prompt('Новое название секции:', currentName);
       
       if (newName && newName.trim() !== '') {
         titleElem.innerText = `Зона «${newName.trim()}»`;
+        logMessage(`Имя зоны сброшено на: ${newName.trim()}`, 'info');
       }
     }
+
+    // Dynamic Metric Counters
+    function updateMetrics() {
+      const total = document.querySelectorAll('.pc-card').length;
+      const online = document.querySelectorAll('.pc-card.online').length;
+      const offline = total - online;
+
+      document.getElementById('count-total').innerText = total;
+      document.getElementById('count-online').innerText = online;
+      document.getElementById('count-offline').innerText = offline;
+    }
+
+    // Canvas Animated Grid Background
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    function drawGrid() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = 'rgba(0, 242, 254, 0.05)';
+      ctx.lineWidth = 1;
+
+      const gridSize = 40;
+      for (let x = 0; x < canvas.width; x += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < canvas.height; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+    }
+    drawGrid();
   </script>
 </body>
 </html>
