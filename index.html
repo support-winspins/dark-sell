@@ -3,22 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CYBER-HUB // PC Control Center 2026</title>
+  <title>CYBERHUB // PC Management Hub</title>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-main: #05070f;
-      --panel-bg: rgba(13, 18, 36, 0.65);
-      --panel-border: rgba(0, 242, 254, 0.15);
-      --panel-glow: rgba(0, 242, 254, 0.05);
+      --bg-pure-black: #000000;
       
-      --neon-cyan: #00f2fe;
-      --neon-purple: #9d4edd;
-      --neon-emerald: #10b981;
-      --neon-rose: #ff0055;
+      /* Glassmorphism system */
+      --glass-panel: rgba(10, 14, 26, 0.48);
+      --glass-card: rgba(255, 255, 255, 0.03);
+      --glass-card-hover: rgba(255, 255, 255, 0.07);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --glass-border-light: rgba(255, 255, 255, 0.15);
       
-      --text-main: #f8fafc;
-      --text-muted: #64748b;
+      /* Neons & Colors */
+      --accent-cyan: #00f2fe;
+      --accent-purple: #7f00ff;
+      --status-online: #10b981;
+      --status-offline: #f43f5e;
+      
+      --text-main: #ffffff;
+      --text-muted: #8e9bb0;
       --font-main: 'Plus Jakarta Sans', sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
     }
@@ -31,15 +36,18 @@
     }
 
     body {
-      background-color: var(--bg-main);
+      background-color: var(--bg-pure-black);
       color: var(--text-main);
       font-family: var(--font-main);
       min-height: 100vh;
-      overflow-x: hidden;
       display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      overflow-x: hidden;
     }
 
-    /* Video Background */
+    /* Planet Video Background */
     #bg-video {
       position: fixed;
       top: 0;
@@ -49,83 +57,91 @@
       object-fit: cover;
       z-index: 0;
       pointer-events: none;
-      filter: brightness(0.4) contrast(1.1);
+      filter: brightness(0.45) contrast(1.1);
     }
 
-    /* Video Overlay Tint */
-    .video-overlay {
+    /* Pure Black Vignette for Depth */
+    .video-vignette {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: radial-gradient(circle at 50% 50%, rgba(5, 7, 15, 0.3), rgba(5, 7, 15, 0.85));
-      z-index: 0;
+      background: radial-gradient(circle at center, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.85) 100%);
+      z-index: 1;
       pointer-events: none;
     }
 
-    /* Layout */
-    .app-container {
-      display: flex;
-      width: 100vw;
-      height: 100vh;
-      z-index: 1;
+    /* Main Floating Glass Frame (Inspired by reference) */
+    .glass-frame {
       position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 1480px;
+      height: 88vh;
+      min-height: 720px;
+      background: var(--glass-panel);
+      backdrop-filter: blur(35px) saturate(160%);
+      -webkit-backdrop-filter: blur(35px) saturate(160%);
+      border: 1px solid var(--glass-border);
+      border-radius: 28px;
+      display: flex;
+      overflow: hidden;
+      box-shadow: 0 40px 80px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.1);
     }
 
     /* Sidebar Navigation */
     .sidebar {
-      width: 240px;
-      background: rgba(8, 11, 22, 0.75);
-      border-right: 1px solid var(--panel-border);
-      backdrop-filter: blur(20px);
-      padding: 24px 16px;
+      width: 260px;
+      padding: 36px 24px;
       display: flex;
       flex-direction: column;
-      gap: 32px;
+      gap: 36px;
+      border-right: 1px solid var(--glass-border);
+      background: rgba(0, 0, 0, 0.2);
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 0 8px;
+      gap: 14px;
     }
 
-    .brand-logo {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
-      border-radius: 10px;
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+      border-radius: 12px;
       display: grid;
       place-items: center;
       font-family: var(--font-mono);
       font-weight: 800;
-      box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+      font-size: 16px;
+      box-shadow: 0 0 20px rgba(0, 242, 254, 0.35);
     }
 
-    .brand-title {
-      font-size: 16px;
+    .brand-name {
+      font-size: 18px;
       font-weight: 800;
-      letter-spacing: 1px;
-      background: linear-gradient(90deg, #fff, var(--neon-cyan));
+      letter-spacing: 1.5px;
+      background: linear-gradient(90deg, #ffffff, var(--accent-cyan));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
-    .nav-list {
+    .nav-menu {
       list-style: none;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
     }
 
-    .nav-item {
+    .nav-link {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 12px 16px;
-      border-radius: 12px;
+      gap: 14px;
+      padding: 14px 18px;
+      border-radius: 14px;
       color: var(--text-muted);
       cursor: pointer;
       font-weight: 600;
@@ -133,393 +149,389 @@
       transition: all 0.25s ease;
     }
 
-    .nav-item:hover, .nav-item.active {
+    .nav-link:hover, .nav-link.active {
       color: var(--text-main);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .nav-link.active {
       background: rgba(0, 242, 254, 0.08);
-      border: 1px solid rgba(0, 242, 254, 0.2);
-      box-shadow: inset 0 0 10px rgba(0, 242, 254, 0.05);
+      border-color: rgba(0, 242, 254, 0.3);
+      color: #ffffff;
+      box-shadow: inset 0 0 15px rgba(0, 242, 254, 0.1);
     }
 
-    .nav-item.active {
-      border-color: var(--neon-cyan);
-      box-shadow: 0 0 15px rgba(0, 242, 254, 0.15);
-    }
-
-    /* Main Area */
-    .main-content {
+    /* Main Content Workspace */
+    .workspace {
       flex: 1;
       display: flex;
       flex-direction: column;
       overflow-y: auto;
-      padding: 24px 32px;
-      gap: 24px;
+      padding: 36px 44px;
+      gap: 32px;
     }
 
-    /* Top Stats Dashboard */
-    .top-stats {
+    /* Custom Scrollbar */
+    .workspace::-webkit-scrollbar {
+      width: 6px;
+    }
+    .workspace::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+    }
+
+    /* Header & Top Stats */
+    .metrics-row {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
     }
 
-    .stat-card {
-      background: var(--panel-bg);
-      border: 1px solid var(--panel-border);
-      padding: 18px 20px;
-      border-radius: 16px;
-      backdrop-filter: blur(16px);
+    .metric-card {
+      background: var(--glass-card);
+      border: 1px solid var(--glass-border);
+      padding: 22px 24px;
+      border-radius: 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      transition: transform 0.2s ease, border-color 0.2s ease;
+      transition: all 0.25s ease;
     }
 
-    .stat-card:hover {
+    .metric-card:hover {
+      background: var(--glass-card-hover);
+      border-color: var(--glass-border-light);
       transform: translateY(-2px);
-      border-color: var(--neon-cyan);
     }
 
-    .stat-label {
+    .metric-title {
       font-size: 12px;
       color: var(--text-muted);
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.8px;
     }
 
-    .stat-value {
-      font-size: 26px;
+    .metric-number {
+      font-size: 32px;
       font-weight: 800;
       font-family: var(--font-mono);
-      margin-top: 4px;
+      margin-top: 6px;
     }
 
-    /* Quick Action Toolbar */
-    .control-toolbar {
-      background: var(--panel-bg);
-      border: 1px solid var(--panel-border);
-      border-radius: 18px;
-      padding: 16px 20px;
-      backdrop-filter: blur(16px);
+    /* Action Control Toolbar */
+    .toolbar {
+      background: var(--glass-card);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 18px 24px;
       display: flex;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 16px;
       align-items: center;
       justify-content: space-between;
     }
 
-    .btn-group {
+    .action-group {
       display: flex;
-      gap: 10px;
+      gap: 12px;
       flex-wrap: wrap;
     }
 
     .btn {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--panel-border);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--glass-border);
       color: var(--text-main);
-      padding: 10px 18px;
-      border-radius: 10px;
+      padding: 12px 20px;
+      border-radius: 12px;
       font-size: 13px;
       font-weight: 700;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.25s ease;
       display: inline-flex;
       align-items: center;
       gap: 8px;
     }
 
     .btn:hover {
-      background: rgba(0, 242, 254, 0.15);
-      border-color: var(--neon-cyan);
-      box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+      background: rgba(255, 255, 255, 0.12);
+      border-color: var(--glass-border-light);
+      transform: translateY(-1px);
     }
 
     .btn-danger {
-      border-color: rgba(255, 0, 85, 0.4);
-      color: #ff99bb;
+      background: rgba(244, 63, 94, 0.12);
+      border-color: rgba(244, 63, 94, 0.25);
+      color: #fca5a5;
     }
 
     .btn-danger:hover {
-      background: rgba(255, 0, 85, 0.25);
-      box-shadow: 0 0 15px rgba(255, 0, 85, 0.3);
+      background: rgba(244, 63, 94, 0.25);
+      border-color: rgba(244, 63, 94, 0.5);
     }
 
-    /* Zones Grid */
-    .zone-container {
+    /* Zones Grid Layout */
+    .zones-list {
       display: flex;
       flex-direction: column;
-      gap: 24px;
+      gap: 28px;
     }
 
-    .zone-block {
-      background: var(--panel-bg);
-      border: 1px solid var(--panel-border);
-      border-radius: 20px;
-      padding: 20px;
-      backdrop-filter: blur(16px);
+    .zone-card {
+      background: var(--glass-card);
+      border: 1px solid var(--glass-border);
+      border-radius: 22px;
+      padding: 24px;
     }
 
-    .zone-header {
+    .zone-top-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
-      padding-bottom: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 14px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
 
-    .zone-title {
-      font-size: 16px;
+    .zone-heading {
+      font-size: 18px;
       font-weight: 700;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
 
-    .zone-tag {
-      font-size: 10px;
+    .pc-count-badge {
+      font-size: 11px;
       font-family: var(--font-mono);
-      padding: 3px 8px;
-      background: rgba(0, 242, 254, 0.1);
-      border: 1px solid var(--neon-cyan);
-      color: var(--neon-cyan);
-      border-radius: 6px;
+      padding: 4px 10px;
+      background: rgba(0, 242, 254, 0.08);
+      border: 1px solid rgba(0, 242, 254, 0.25);
+      color: var(--accent-cyan);
+      border-radius: 8px;
     }
 
+    /* PC Cards Grid - More Spacious */
     .pc-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
     }
 
-    /* PC Cards */
     .pc-card {
-      background: rgba(10, 15, 30, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 14px;
-      padding: 16px;
-      position: relative;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 20px;
       transition: all 0.25s ease;
     }
 
     .pc-card:hover {
-      border-color: var(--neon-purple);
-      box-shadow: 0 4px 20px rgba(157, 78, 221, 0.15);
+      background: rgba(255, 255, 255, 0.04);
+      border-color: var(--glass-border-light);
     }
 
     .pc-card.online {
-      border-left: 3px solid var(--neon-emerald);
+      border-left: 4px solid var(--status-online);
     }
 
     .pc-card.offline {
-      border-left: 3px solid var(--neon-rose);
+      border-left: 4px solid var(--status-offline);
       opacity: 0.65;
     }
 
-    .pc-top {
+    .pc-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
-    }
-
-    .pc-name {
-      font-weight: 700;
-      font-size: 15px;
-      font-family: var(--font-mono);
-    }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      display: inline-block;
-    }
-
-    .online .status-dot {
-      background: var(--neon-emerald);
-      box-shadow: 0 0 8px var(--neon-emerald);
-      animation: pulse 2s infinite;
-    }
-
-    .offline .status-dot {
-      background: var(--neon-rose);
-    }
-
-    @keyframes pulse {
-      0% { opacity: 1; }
-      50% { opacity: 0.3; }
-      100% { opacity: 1; }
-    }
-
-    .pc-details {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--text-muted);
       margin-bottom: 14px;
+    }
+
+    .pc-title {
+      font-weight: 700;
+      font-size: 16px;
+      font-family: var(--font-mono);
+    }
+
+    .status-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .online .status-indicator {
+      background: var(--status-online);
+      box-shadow: 0 0 10px var(--status-online);
+    }
+
+    .offline .status-indicator {
+      background: var(--status-offline);
+    }
+
+    .pc-meta {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 18px;
       line-height: 1.6;
     }
 
-    .pc-controls {
+    .pc-buttons {
       display: flex;
-      gap: 8px;
+      gap: 10px;
     }
 
-    .pc-controls .btn {
+    .pc-buttons .btn {
       flex: 1;
       justify-content: center;
-      padding: 6px;
-      font-size: 11px;
+      padding: 8px;
+      font-size: 12px;
     }
 
-    /* Live Cyber Terminal Log */
-    .terminal-section {
-      background: rgba(2, 4, 8, 0.85);
-      border: 1px solid var(--panel-border);
-      border-radius: 16px;
-      padding: 16px;
+    /* Live Terminal Console */
+    .terminal-wrapper {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 20px;
       font-family: var(--font-mono);
       font-size: 12px;
-      max-height: 180px;
+      max-height: 160px;
       display: flex;
       flex-direction: column;
-      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(10px);
     }
 
-    .terminal-header {
-      color: var(--neon-cyan);
+    .terminal-top {
+      color: var(--accent-cyan);
       font-weight: 700;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       font-size: 11px;
       letter-spacing: 1px;
       display: flex;
       justify-content: space-between;
     }
 
-    .terminal-body {
+    .terminal-logs {
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 4px;
-      color: #a0aec0;
-    }
-
-    .log-entry {
-      line-height: 1.4;
+      gap: 6px;
+      color: #94a3b8;
     }
 
     .log-time { color: var(--text-muted); }
-    .log-success { color: var(--neon-emerald); }
-    .log-danger { color: var(--neon-rose); }
-    .log-cmd { color: var(--neon-cyan); }
+    .log-success { color: var(--status-online); }
+    .log-danger { color: var(--status-offline); }
+    .log-info { color: var(--accent-cyan); }
   </style>
 </head>
 <body>
 
-  <!-- Video Background -->
+  <!-- Planet Video Background -->
   <video id="bg-video" autoplay loop muted playsinline>
     <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260613_180732_a54afbf6-b30d-470e-861f-669871f09f67.mp4" type="video/mp4">
   </video>
-  <div class="video-overlay"></div>
+  <div class="video-vignette"></div>
 
-  <div class="app-container">
-    <!-- Sidebar -->
+  <!-- Main Floating Glass Container -->
+  <div class="glass-frame">
+    
+    <!-- Sidebar Bar -->
     <aside class="sidebar">
       <div class="brand">
-        <div class="brand-logo">CC</div>
-        <div class="brand-title">CYBERHUB</div>
+        <div class="brand-icon">CC</div>
+        <div class="brand-name">CYBERHUB</div>
       </div>
 
-      <ul class="nav-list">
-        <li class="nav-item active">⚡ Дашборд</li>
-        <li class="nav-item">🖥️ Устройства</li>
-        <li class="nav-item">🏷️ Зоны</li>
-        <li class="nav-item">📊 Логи</li>
-        <li class="nav-item">⚙️ Настройки</li>
+      <ul class="nav-menu">
+        <li class="nav-link active">⚡ Дашборд</li>
+        <li class="nav-link">🖥️ Устройства</li>
+        <li class="nav-link">🏷️ Зоны</li>
+        <li class="nav-link">📊 Логи</li>
+        <li class="nav-link">⚙️ Настройки</li>
       </ul>
     </aside>
 
-    <!-- Main Content -->
-    <main class="main-content">
+    <!-- Content Workspace -->
+    <main class="workspace">
       
-      <!-- Top Metrics -->
-      <section class="top-stats">
-        <div class="stat-card">
+      <!-- Top Metrics Row -->
+      <section class="metrics-row">
+        <div class="metric-card">
           <div>
-            <div class="stat-label">Всего компьютеров</div>
-            <div class="stat-value" id="count-total">4</div>
+            <div class="metric-title">Всего ПК</div>
+            <div class="metric-number" id="count-total">4</div>
           </div>
-          <span style="font-size: 24px;">🖥️</span>
+          <span style="font-size: 28px;">🖥️</span>
         </div>
-        <div class="stat-card">
+        <div class="metric-card">
           <div>
-            <div class="stat-label">В сети (Online)</div>
-            <div class="stat-value" style="color: var(--neon-emerald);" id="count-online">3</div>
+            <div class="metric-title">В сети (Online)</div>
+            <div class="metric-number" style="color: var(--status-online);" id="count-online">3</div>
           </div>
-          <span style="font-size: 24px;">🟢</span>
+          <span style="font-size: 28px;">🟢</span>
         </div>
-        <div class="stat-card">
+        <div class="metric-card">
           <div>
-            <div class="stat-label">Выключены (Offline)</div>
-            <div class="stat-value" style="color: var(--neon-rose);" id="count-offline">1</div>
+            <div class="metric-title">Выключены (Offline)</div>
+            <div class="metric-number" style="color: var(--status-offline);" id="count-offline">1</div>
           </div>
-          <span style="font-size: 24px;">🔴</span>
+          <span style="font-size: 28px;">🔴</span>
         </div>
       </section>
 
-      <!-- Global Actions Toolbar -->
-      <section class="control-toolbar">
-        <div class="btn-group">
+      <!-- Global Toolbar -->
+      <section class="toolbar">
+        <div class="action-group">
           <button class="btn btn-danger" onclick="executeGlobal('SHUTDOWN_ALL')">🛑 Выключить всё</button>
           <button class="btn" onclick="executeGlobal('WOL_ALL')">🔌 Включить всё (WoL)</button>
         </div>
-        <div class="btn-group">
+        <div class="action-group">
           <button class="btn" onclick="executeZone('standard', 'SHUTDOWN')">Отключить Стандарт</button>
           <button class="btn" onclick="executeZone('vip', 'SHUTDOWN')">Отключить VIP</button>
           <button class="btn" onclick="executeZone('duo', 'SHUTDOWN')">Отключить Duo</button>
         </div>
       </section>
 
-      <!-- PC Zones -->
-      <section class="zone-container">
+      <!-- Zone Sections Grid -->
+      <section class="zones-list">
         
-        <!-- Standard Zone -->
-        <div class="zone-block" id="zone-standard">
-          <div class="zone-header">
-            <div class="zone-title">
+        <!-- Zone 1: Standard -->
+        <div class="zone-card" id="zone-standard">
+          <div class="zone-top-bar">
+            <div class="zone-heading">
               <span id="title-standard">Зона «Стандарт»</span>
-              <span class="zone-tag">2 ПК</span>
+              <span class="pc-count-badge">2 ПК</span>
             </div>
-            <button class="btn" style="padding: 4px 10px; font-size: 11px;" onclick="renameZone('standard')">✏️ Изменить название</button>
+            <button class="btn" style="padding: 6px 12px; font-size: 11px;" onclick="renameZone('standard')">✏️ Изменить название</button>
           </div>
           <div class="pc-grid">
             <div class="pc-card online" id="pc-1">
-              <div class="pc-top">
-                <span class="pc-name">PC-01</span>
-                <span class="status-dot"></span>
+              <div class="pc-header">
+                <span class="pc-title">PC-01</span>
+                <span class="status-indicator"></span>
               </div>
-              <div class="pc-details">
+              <div class="pc-meta">
                 IP: 192.168.1.101<br>
                 MAC: AA:BB:CC:DD:01
               </div>
-              <div class="pc-controls">
+              <div class="pc-buttons">
                 <button class="btn btn-danger" onclick="setPCState('pc-1', false)">Выкл</button>
                 <button class="btn" onclick="setPCState('pc-1', true)">Вкл</button>
               </div>
             </div>
 
             <div class="pc-card online" id="pc-2">
-              <div class="pc-top">
-                <span class="pc-name">PC-02</span>
-                <span class="status-dot"></span>
+              <div class="pc-header">
+                <span class="pc-title">PC-02</span>
+                <span class="status-indicator"></span>
               </div>
-              <div class="pc-details">
+              <div class="pc-meta">
                 IP: 192.168.1.102<br>
                 MAC: AA:BB:CC:DD:02
               </div>
-              <div class="pc-controls">
+              <div class="pc-buttons">
                 <button class="btn btn-danger" onclick="setPCState('pc-2', false)">Выкл</button>
                 <button class="btn" onclick="setPCState('pc-2', true)">Вкл</button>
               </div>
@@ -527,26 +539,26 @@
           </div>
         </div>
 
-        <!-- VIP Zone -->
-        <div class="zone-block" id="zone-vip">
-          <div class="zone-header">
-            <div class="zone-title">
+        <!-- Zone 2: VIP -->
+        <div class="zone-card" id="zone-vip">
+          <div class="zone-top-bar">
+            <div class="zone-heading">
               <span id="title-vip">Зона «VIP Room»</span>
-              <span class="zone-tag">1 ПК</span>
+              <span class="pc-count-badge">1 ПК</span>
             </div>
-            <button class="btn" style="padding: 4px 10px; font-size: 11px;" onclick="renameZone('vip')">✏️ Изменить название</button>
+            <button class="btn" style="padding: 6px 12px; font-size: 11px;" onclick="renameZone('vip')">✏️ Изменить название</button>
           </div>
           <div class="pc-grid">
             <div class="pc-card offline" id="pc-3">
-              <div class="pc-top">
-                <span class="pc-name">VIP-01</span>
-                <span class="status-dot"></span>
+              <div class="pc-header">
+                <span class="pc-title">VIP-01</span>
+                <span class="status-indicator"></span>
               </div>
-              <div class="pc-details">
+              <div class="pc-meta">
                 IP: 192.168.1.201<br>
                 MAC: AA:BB:CC:DD:03
               </div>
-              <div class="pc-controls">
+              <div class="pc-buttons">
                 <button class="btn btn-danger" onclick="setPCState('pc-3', false)">Выкл</button>
                 <button class="btn" onclick="setPCState('pc-3', true)">Вкл</button>
               </div>
@@ -554,26 +566,26 @@
           </div>
         </div>
 
-        <!-- Duo Zone -->
-        <div class="zone-block" id="zone-duo">
-          <div class="zone-header">
-            <div class="zone-title">
+        <!-- Zone 3: Duo -->
+        <div class="zone-card" id="zone-duo">
+          <div class="zone-top-bar">
+            <div class="zone-heading">
               <span id="title-duo">Зона «Duo Room»</span>
-              <span class="zone-tag">1 ПК</span>
+              <span class="pc-count-badge">1 ПК</span>
             </div>
-            <button class="btn" style="padding: 4px 10px; font-size: 11px;" onclick="renameZone('duo')">✏️ Изменить название</button>
+            <button class="btn" style="padding: 6px 12px; font-size: 11px;" onclick="renameZone('duo')">✏️ Изменить название</button>
           </div>
           <div class="pc-grid">
             <div class="pc-card online" id="pc-4">
-              <div class="pc-top">
-                <span class="pc-name">DUO-01</span>
-                <span class="status-dot"></span>
+              <div class="pc-header">
+                <span class="pc-title">DUO-01</span>
+                <span class="status-indicator"></span>
               </div>
-              <div class="pc-details">
+              <div class="pc-meta">
                 IP: 192.168.1.301<br>
                 MAC: AA:BB:CC:DD:04
               </div>
-              <div class="pc-controls">
+              <div class="pc-buttons">
                 <button class="btn btn-danger" onclick="setPCState('pc-4', false)">Выкл</button>
                 <button class="btn" onclick="setPCState('pc-4', true)">Вкл</button>
               </div>
@@ -584,13 +596,13 @@
       </section>
 
       <!-- Live Terminal Output -->
-      <section class="terminal-section">
-        <div class="terminal-header">
+      <section class="terminal-wrapper">
+        <div class="terminal-top">
           <span>SYSTEM TERMINAL // LIVE LOGS</span>
-          <span style="color: var(--neon-emerald);">● CONNECTED</span>
+          <span style="color: var(--status-online);">● ONLINE</span>
         </div>
-        <div class="terminal-body" id="terminal-body">
-          <div class="log-entry"><span class="log-time">[12:00:00]</span> <span class="log-cmd">SYSTEM_INIT:</span> ПО успешно запущенно. Ожидание WebSocket команд...</div>
+        <div class="terminal-logs" id="terminal-logs">
+          <div><span class="log-time">[12:00:00]</span> <span class="log-info">> SYSTEM_READY:</span> Стеклянная панель загружена. Готов к командам...</div>
         </div>
       </section>
 
@@ -600,28 +612,27 @@
   <script>
     // Live Terminal Logger
     function logMessage(msg, type = 'info') {
-      const body = document.getElementById('terminal-body');
+      const logsContainer = document.getElementById('terminal-logs');
       const time = new Date().toLocaleTimeString();
       const entry = document.createElement('div');
-      entry.className = 'log-entry';
       
-      let typeClass = 'log-cmd';
+      let typeClass = 'log-info';
       if (type === 'success') typeClass = 'log-success';
       if (type === 'danger') typeClass = 'log-danger';
 
       entry.innerHTML = `<span class="log-time">[${time}]</span> <span class="${typeClass}">> ${msg}</span>`;
-      body.appendChild(entry);
-      body.scrollTop = body.scrollHeight;
+      logsContainer.appendChild(entry);
+      logsContainer.scrollTop = logsContainer.scrollHeight;
     }
 
     // Toggle Individual PC State
     function setPCState(pcId, turnOn) {
       const card = document.getElementById(pcId);
-      const pcName = card.querySelector('.pc-name').innerText;
+      const pcName = card.querySelector('.pc-title').innerText;
 
       if (turnOn) {
         card.className = 'pc-card online';
-        logMessage(`[WOL] Отправка Magic Packet на ${pcName}... Питание подано.`, 'success');
+        logMessage(`[WOL] Отправка Magic Packet на ${pcName}... Включён.`, 'success');
       } else {
         card.className = 'pc-card offline';
         logMessage(`[SHUTDOWN] Сигнал выключения отправлен на ${pcName}.`, 'danger');
@@ -635,17 +646,17 @@
       const cards = zone.querySelectorAll('.pc-card');
       const zoneName = document.getElementById(`title-${zoneKey}`).innerText;
       
-      logMessage(`Команда ${action} для секции ${zoneName}...`, 'cmd');
+      logMessage(`Групповая команда ${action} для зоны ${zoneName}...`, 'info');
       cards.forEach(card => setPCState(card.id, action === 'WOL'));
     }
 
     // Global Actions
     function executeGlobal(action) {
       if (action === 'SHUTDOWN_ALL') {
-        logMessage('ГЛОБАЛЬНАЯ КОМАНДА: Выключение всех устройств сети!', 'danger');
+        logMessage('ГЛОБАЛЬНАЯ КОМАНДА: Выключение всех компьютеров!', 'danger');
         document.querySelectorAll('.pc-card').forEach(card => setPCState(card.id, false));
       } else {
-        logMessage('ГЛОБАЛЬНАЯ КОМАНДА: Wake-on-LAN для всех ПК...', 'success');
+        logMessage('ГЛОБАЛЬНАЯ КОМАНДА: Включение всех ПК (Wake-on-LAN)...', 'success');
         document.querySelectorAll('.pc-card').forEach(card => setPCState(card.id, true));
       }
     }
@@ -654,11 +665,11 @@
     function renameZone(zoneKey) {
       const titleElem = document.getElementById(`title-${zoneKey}`);
       const currentName = titleElem.innerText.replace('Зона «', '').replace('»', '');
-      const newName = prompt('Новое название секции:', currentName);
+      const newName = prompt('Введите новое имя зоны:', currentName);
       
       if (newName && newName.trim() !== '') {
         titleElem.innerText = `Зона «${newName.trim()}»`;
-        logMessage(`Имя зоны сброшено на: ${newName.trim()}`, 'info');
+        logMessage(`Название зоны изменено на: ${newName.trim()}`, 'info');
       }
     }
 
