@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CYBERHUB // PC Management Hub</title>
+  <title>CYBERHUB // Access Gateway</title>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg-pure-black: #000000;
       
       /* Glassmorphism system */
-      --glass-panel: rgba(10, 14, 26, 0.48);
+      --glass-panel: rgba(10, 14, 26, 0.55);
       --glass-card: rgba(255, 255, 255, 0.03);
       --glass-card-hover: rgba(255, 255, 255, 0.07);
-      --glass-border: rgba(255, 255, 255, 0.08);
-      --glass-border-light: rgba(255, 255, 255, 0.15);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --glass-border-light: rgba(255, 255, 255, 0.2);
       
       /* Neons & Colors */
       --accent-cyan: #00f2fe;
@@ -44,7 +44,7 @@
       justify-content: center;
       align-items: center;
       padding: 24px;
-      overflow-x: hidden;
+      overflow: hidden;
     }
 
     /* Planet Video Background */
@@ -57,22 +57,219 @@
       object-fit: cover;
       z-index: 0;
       pointer-events: none;
-      filter: brightness(0.45) contrast(1.1);
+      filter: brightness(0.4) contrast(1.1);
     }
 
-    /* Pure Black Vignette for Depth */
     .video-vignette {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: radial-gradient(circle at center, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.85) 100%);
+      background: radial-gradient(circle at center, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.9) 100%);
       z-index: 1;
       pointer-events: none;
     }
 
-    /* Main Floating Glass Frame (Inspired by reference) */
+    /* =========================================================
+       LOCK GATEWAY SCREEN (ЭКРАН БЛОКИРОВКИ)
+    ========================================================= */
+    .lock-screen-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.8s;
+    }
+
+    .lock-screen-overlay.unlocked {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .lock-card {
+      background: var(--glass-panel);
+      border: 1px solid var(--glass-border);
+      border-radius: 32px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 460px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      position: relative;
+      transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* Giant Animated Lock Icon */
+    .lock-icon-container {
+      width: 110px;
+      height: 110px;
+      margin-bottom: 24px;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.4s ease;
+      filter: drop-shadow(0 0 15px rgba(0, 242, 254, 0.3));
+      animation: floatIdle 4s ease-in-out infinite;
+    }
+
+    .lock-svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .lock-shackle {
+      transform-origin: 20px 28px;
+      transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), stroke 0.3s ease;
+    }
+
+    .lock-body {
+      transition: fill 0.3s ease, stroke 0.3s ease;
+    }
+
+    /* Lock Screen Animations */
+    @keyframes floatIdle {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    /* Error Shake State */
+    .lock-card.error-shake {
+      animation: bounceError 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+      border-color: rgba(244, 63, 94, 0.6);
+      box-shadow: 0 0 40px rgba(244, 63, 94, 0.35);
+    }
+
+    .lock-card.error-shake .lock-icon-container {
+      animation: none;
+      filter: drop-shadow(0 0 25px rgba(244, 63, 94, 0.9));
+      transform: scale(1.08) translateY(-4px);
+    }
+
+    .lock-card.error-shake .lock-body,
+    .lock-card.error-shake .lock-shackle {
+      stroke: #f43f5e;
+    }
+
+    @keyframes bounceError {
+      10%, 90% { transform: translate3d(-3px, -6px, 0); }
+      20%, 80% { transform: translate3d(5px, 2px, 0); }
+      30%, 50%, 70% { transform: translate3d(-8px, -10px, 0); }
+      40%, 60% { transform: translate3d(8px, 0, 0); }
+    }
+
+    /* Success Fly-Up State */
+    .lock-card.success-fly .lock-icon-container {
+      animation: none;
+      transform: translateY(-60px) scale(1.15);
+      filter: drop-shadow(0 0 35px rgba(16, 185, 129, 0.95));
+    }
+
+    .lock-card.success-fly .lock-shackle {
+      transform: translateY(-10px) rotate(-30px);
+      stroke: #10b981;
+    }
+
+    .lock-card.success-fly .lock-body {
+      stroke: #10b981;
+    }
+
+    .lock-card.success-fly {
+      border-color: rgba(16, 185, 129, 0.6);
+      box-shadow: 0 0 50px rgba(16, 185, 129, 0.3);
+    }
+
+    /* Lock Form Text */
+    .lock-title {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      background: linear-gradient(90deg, #ffffff, var(--accent-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .lock-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+    }
+
+    /* 5-Digit PIN Input Group */
+    .pin-group {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .pin-input {
+      width: 52px;
+      height: 62px;
+      border-radius: 14px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--glass-border);
+      color: var(--accent-cyan);
+      font-family: var(--font-mono);
+      font-size: 26px;
+      font-weight: 700;
+      text-align: center;
+      outline: none;
+      transition: all 0.2s ease;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .pin-input:focus {
+      border-color: var(--accent-cyan);
+      background: rgba(0, 242, 254, 0.05);
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+      transform: translateY(-2px);
+    }
+
+    /* Status & Error Message */
+    .lock-msg {
+      min-height: 24px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      transition: all 0.3s ease;
+    }
+
+    .lock-msg.error {
+      color: #f43f5e;
+      text-shadow: 0 0 10px rgba(244, 63, 94, 0.5);
+    }
+
+    .lock-msg.success {
+      color: #10b981;
+      text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+    }
+
+    .pin-hint {
+      margin-top: 18px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.3);
+      font-family: var(--font-mono);
+    }
+
+
+    /* =========================================================
+       MAIN SITE DASHBOARD (ОСНОВНОЙ САЙТ)
+    ========================================================= */
     .glass-frame {
       position: relative;
       z-index: 2;
@@ -88,6 +285,16 @@
       display: flex;
       overflow: hidden;
       box-shadow: 0 40px 80px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      
+      /* Hidden initially until unlocked */
+      opacity: 0;
+      transform: scale(0.96);
+      transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .glass-frame.visible {
+      opacity: 1;
+      transform: scale(1);
     }
 
     /* Sidebar Navigation */
@@ -162,7 +369,7 @@
       box-shadow: inset 0 0 15px rgba(0, 242, 254, 0.1);
     }
 
-    /* Main Content Workspace */
+    /* Workspace */
     .workspace {
       flex: 1;
       display: flex;
@@ -172,16 +379,13 @@
       gap: 32px;
     }
 
-    /* Custom Scrollbar */
-    .workspace::-webkit-scrollbar {
-      width: 6px;
-    }
+    .workspace::-webkit-scrollbar { width: 6px; }
     .workspace::-webkit-scrollbar-thumb {
       background: rgba(255, 255, 255, 0.15);
       border-radius: 10px;
     }
 
-    /* Header & Top Stats */
+    /* Dashboard Metrics */
     .metrics-row {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -220,7 +424,7 @@
       margin-top: 6px;
     }
 
-    /* Action Control Toolbar */
+    /* Toolbar & Buttons */
     .toolbar {
       background: var(--glass-card);
       border: 1px solid var(--glass-border);
@@ -271,7 +475,7 @@
       border-color: rgba(244, 63, 94, 0.5);
     }
 
-    /* Zones Grid Layout */
+    /* Zones & Cards */
     .zones-list {
       display: flex;
       flex-direction: column;
@@ -312,7 +516,6 @@
       border-radius: 8px;
     }
 
-    /* PC Cards Grid - More Spacious */
     .pc-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -332,14 +535,8 @@
       border-color: var(--glass-border-light);
     }
 
-    .pc-card.online {
-      border-left: 4px solid var(--status-online);
-    }
-
-    .pc-card.offline {
-      border-left: 4px solid var(--status-offline);
-      opacity: 0.65;
-    }
+    .pc-card.online { border-left: 4px solid var(--status-online); }
+    .pc-card.offline { border-left: 4px solid var(--status-offline); opacity: 0.65; }
 
     .pc-header {
       display: flex;
@@ -348,26 +545,11 @@
       margin-bottom: 14px;
     }
 
-    .pc-title {
-      font-weight: 700;
-      font-size: 16px;
-      font-family: var(--font-mono);
-    }
+    .pc-title { font-weight: 700; font-size: 16px; font-family: var(--font-mono); }
 
-    .status-indicator {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-    }
-
-    .online .status-indicator {
-      background: var(--status-online);
-      box-shadow: 0 0 10px var(--status-online);
-    }
-
-    .offline .status-indicator {
-      background: var(--status-offline);
-    }
+    .status-indicator { width: 10px; height: 10px; border-radius: 50%; }
+    .online .status-indicator { background: var(--status-online); box-shadow: 0 0 10px var(--status-online); }
+    .offline .status-indicator { background: var(--status-offline); }
 
     .pc-meta {
       font-family: var(--font-mono);
@@ -377,17 +559,8 @@
       line-height: 1.6;
     }
 
-    .pc-buttons {
-      display: flex;
-      gap: 10px;
-    }
-
-    .pc-buttons .btn {
-      flex: 1;
-      justify-content: center;
-      padding: 8px;
-      font-size: 12px;
-    }
+    .pc-buttons { display: flex; gap: 10px; }
+    .pc-buttons .btn { flex: 1; justify-content: center; padding: 8px; font-size: 12px; }
 
     /* Live Terminal Console */
     .terminal-wrapper {
@@ -434,8 +607,50 @@
   </video>
   <div class="video-vignette"></div>
 
-  <!-- Main Floating Glass Container -->
-  <div class="glass-frame">
+  <!-- =========================================================
+       1. PIN GATEWAY SCREEN OVERLAY
+  ========================================================= -->
+  <div class="lock-screen-overlay" id="lock-screen">
+    <div class="lock-card" id="lock-card">
+      
+      <!-- Animated Lock Graphic -->
+      <div class="lock-icon-container">
+        <svg class="lock-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Lock Shackle -->
+          <path class="lock-shackle" d="M20 28V18C20 11.3726 25.3726 6 32 6C38.6274 6 44 11.3726 44 18V28" 
+                stroke="#00f2fe" stroke-width="5" stroke-linecap="round"/>
+          <!-- Lock Main Body -->
+          <rect class="lock-body" x="14" y="26" width="36" height="32" rx="8" 
+                fill="rgba(10, 14, 26, 0.9)" stroke="#00f2fe" stroke-width="4"/>
+          <!-- Keyhole -->
+          <circle cx="32" cy="39" r="3" fill="#00f2fe"/>
+          <path d="M32 42V48" stroke="#00f2fe" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <h2 class="lock-title">ВХОД В CYBERHUB</h2>
+      <p class="lock-subtitle">Введите 5-значный код доступа</p>
+
+      <!-- 5-Digit Inputs -->
+      <div class="pin-group" id="pin-group">
+        <input type="password" maxlength="1" class="pin-input" inputmode="numeric" autofocus>
+        <input type="password" maxlength="1" class="pin-input" inputmode="numeric">
+        <input type="password" maxlength="1" class="pin-input" inputmode="numeric">
+        <input type="password" maxlength="1" class="pin-input" inputmode="numeric">
+        <input type="password" maxlength="1" class="pin-input" inputmode="numeric">
+      </div>
+
+      <div class="lock-msg" id="lock-msg"></div>
+      <div class="pin-hint">Тестовый ПИН-код: 12345</div>
+
+    </div>
+  </div>
+
+
+  <!-- =========================================================
+       2. MAIN SITE DASHBOARD
+  ========================================================= -->
+  <div class="glass-frame" id="main-app">
     
     <!-- Sidebar Bar -->
     <aside class="sidebar">
@@ -512,10 +727,7 @@
                 <span class="pc-title">PC-01</span>
                 <span class="status-indicator"></span>
               </div>
-              <div class="pc-meta">
-                IP: 192.168.1.101<br>
-                MAC: AA:BB:CC:DD:01
-              </div>
+              <div class="pc-meta">IP: 192.168.1.101<br>MAC: AA:BB:CC:DD:01</div>
               <div class="pc-buttons">
                 <button class="btn btn-danger" onclick="setPCState('pc-1', false)">Выкл</button>
                 <button class="btn" onclick="setPCState('pc-1', true)">Вкл</button>
@@ -527,10 +739,7 @@
                 <span class="pc-title">PC-02</span>
                 <span class="status-indicator"></span>
               </div>
-              <div class="pc-meta">
-                IP: 192.168.1.102<br>
-                MAC: AA:BB:CC:DD:02
-              </div>
+              <div class="pc-meta">IP: 192.168.1.102<br>MAC: AA:BB:CC:DD:02</div>
               <div class="pc-buttons">
                 <button class="btn btn-danger" onclick="setPCState('pc-2', false)">Выкл</button>
                 <button class="btn" onclick="setPCState('pc-2', true)">Вкл</button>
@@ -554,10 +763,7 @@
                 <span class="pc-title">VIP-01</span>
                 <span class="status-indicator"></span>
               </div>
-              <div class="pc-meta">
-                IP: 192.168.1.201<br>
-                MAC: AA:BB:CC:DD:03
-              </div>
+              <div class="pc-meta">IP: 192.168.1.201<br>MAC: AA:BB:CC:DD:03</div>
               <div class="pc-buttons">
                 <button class="btn btn-danger" onclick="setPCState('pc-3', false)">Выкл</button>
                 <button class="btn" onclick="setPCState('pc-3', true)">Вкл</button>
@@ -581,10 +787,7 @@
                 <span class="pc-title">DUO-01</span>
                 <span class="status-indicator"></span>
               </div>
-              <div class="pc-meta">
-                IP: 192.168.1.301<br>
-                MAC: AA:BB:CC:DD:04
-              </div>
+              <div class="pc-meta">IP: 192.168.1.301<br>MAC: AA:BB:CC:DD:04</div>
               <div class="pc-buttons">
                 <button class="btn btn-danger" onclick="setPCState('pc-4', false)">Выкл</button>
                 <button class="btn" onclick="setPCState('pc-4', true)">Вкл</button>
@@ -595,7 +798,7 @@
 
       </section>
 
-      <!-- Live Terminal Output -->
+      <!-- Live Terminal Console -->
       <section class="terminal-wrapper">
         <div class="terminal-top">
           <span>SYSTEM TERMINAL // LIVE LOGS</span>
@@ -610,7 +813,103 @@
   </div>
 
   <script>
-    // Live Terminal Logger
+    /* =========================================================
+       PIN CODE LOGIC & ANIMATION CONTROLLER
+    ========================================================= */
+    const CORRECT_PIN = "12345"; // Задайте нужный 5-значный пароль
+    const pinInputs = document.querySelectorAll('.pin-input');
+    const lockCard = document.getElementById('lock-card');
+    const lockMsg = document.getElementById('lock-msg');
+    const lockOverlay = document.getElementById('lock-screen');
+    const mainApp = document.getElementById('main-app');
+
+    // Auto-focus next input / Backspace behavior
+    pinInputs.forEach((input, idx) => {
+      input.addEventListener('input', (e) => {
+        const val = e.target.value;
+        if (val.length === 1 && idx < pinInputs.length - 1) {
+          pinInputs[idx + 1].focus();
+        }
+        checkPinComplete();
+      });
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+          pinInputs[idx - 1].focus();
+        }
+      });
+
+      // Handle full code paste
+      input.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const pastedData = e.clipboardData.getData('text').trim().slice(0, 5);
+        if (/^\d+$/.test(pastedData)) {
+          pastedData.split('').forEach((char, i) => {
+            if (pinInputs[i]) pinInputs[i].value = char;
+          });
+          if (pinInputs[pastedData.length - 1]) {
+            pinInputs[pastedData.length - 1].focus();
+          }
+          checkPinComplete();
+        }
+      });
+    });
+
+    function checkPinComplete() {
+      let enteredPin = "";
+      pinInputs.forEach(i => enteredPin += i.value);
+
+      if (enteredPin.length === 5) {
+        if (enteredPin === CORRECT_PIN) {
+          handleSuccess();
+        } else {
+          handleError();
+        }
+      }
+    }
+
+    // Wrong Password Callback
+    function handleError() {
+      lockCard.classList.remove('error-shake', 'success-fly');
+      void lockCard.offsetWidth; // Trigger reflow for animation
+      lockCard.classList.add('error-shake');
+
+      lockMsg.className = 'lock-msg error';
+      lockMsg.innerText = 'Пароль не верный';
+
+      // Clear Inputs & refocus
+      setTimeout(() => {
+        pinInputs.forEach(i => i.value = '');
+        pinInputs[0].focus();
+      }, 500);
+
+      setTimeout(() => {
+        lockCard.classList.remove('error-shake');
+      }, 800);
+    }
+
+    // Correct Password Callback
+    function handleSuccess() {
+      lockCard.classList.remove('error-shake');
+      lockCard.classList.add('success-fly');
+
+      lockMsg.className = 'lock-msg success';
+      lockMsg.innerText = 'Доступ разрешен!';
+
+      pinInputs.forEach(i => i.disabled = true);
+
+      // Transition to Main Site
+      setTimeout(() => {
+        lockOverlay.classList.add('unlocked');
+        mainApp.classList.add('visible');
+        logMessage('Пользователь успешно авторизовался через ПИН-код.', 'success');
+      }, 900);
+    }
+
+
+    /* =========================================================
+       DASHBOARD LOGIC
+    ========================================================= */
     function logMessage(msg, type = 'info') {
       const logsContainer = document.getElementById('terminal-logs');
       const time = new Date().toLocaleTimeString();
@@ -625,7 +924,6 @@
       logsContainer.scrollTop = logsContainer.scrollHeight;
     }
 
-    // Toggle Individual PC State
     function setPCState(pcId, turnOn) {
       const card = document.getElementById(pcId);
       const pcName = card.querySelector('.pc-title').innerText;
@@ -640,7 +938,6 @@
       updateMetrics();
     }
 
-    // Execute Zone Actions
     function executeZone(zoneKey, action) {
       const zone = document.getElementById(`zone-${zoneKey}`);
       const cards = zone.querySelectorAll('.pc-card');
@@ -650,7 +947,6 @@
       cards.forEach(card => setPCState(card.id, action === 'WOL'));
     }
 
-    // Global Actions
     function executeGlobal(action) {
       if (action === 'SHUTDOWN_ALL') {
         logMessage('ГЛОБАЛЬНАЯ КОМАНДА: Выключение всех компьютеров!', 'danger');
@@ -661,7 +957,6 @@
       }
     }
 
-    // Rename Zone
     function renameZone(zoneKey) {
       const titleElem = document.getElementById(`title-${zoneKey}`);
       const currentName = titleElem.innerText.replace('Зона «', '').replace('»', '');
@@ -673,7 +968,6 @@
       }
     }
 
-    // Dynamic Metric Counters
     function updateMetrics() {
       const total = document.querySelectorAll('.pc-card').length;
       const online = document.querySelectorAll('.pc-card.online').length;
