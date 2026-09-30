@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PC Control Hub - Управление ПК</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0b0f19;
+      --card-bg: rgba(23, 31, 51, 0.7);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent-cyan: #00f2fe;
+      --accent-purple: #7f00ff;
+      --status-online: #10b981;
+      --status-offline: #ef4444;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: radial-gradient(circle at 50% 0%, rgba(127, 0, 255, 0.15), transparent 50%);
+      color: var(--text-main);
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .title-group h1 {
+      font-size: 24px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #00f2fe, #4facfe);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .title-group p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Global Action Buttons Bar */
+    .global-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      background: var(--card-bg);
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(12px);
+      margin-bottom: 32px;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      transform: translateY(-1px);
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+    }
+
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-success {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.3);
+      color: #6ee7b7;
+    }
+
+    .btn-success:hover {
+      background: rgba(16, 185, 129, 0.3);
+    }
+
+    /* Zones & Grid */
+    .zone-section {
+      margin-bottom: 32px;
+    }
+
+    .zone-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 8px;
+    }
+
+    .zone-title {
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .edit-zone-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .edit-zone-btn:hover {
+      color: var(--accent-cyan);
+    }
+
+    .pc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    /* PC Card */
+    .pc-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 16px;
+      position: relative;
+      backdrop-filter: blur(8px);
+      transition: border-color 0.2s ease;
+    }
+
+    .pc-card.online {
+      border-left: 4px solid var(--status-online);
+    }
+
+    .pc-card.offline {
+      border-left: 4px solid var(--status-offline);
+      opacity: 0.7;
+    }
+
+    .pc-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .pc-name {
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .status-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 20px;
+      text-transform: uppercase;
+    }
+
+    .status-badge.online {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--status-online);
+    }
+
+    .status-badge.offline {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--status-offline);
+    }
+
+    .pc-info {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .pc-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .pc-actions .btn {
+      flex: 1;
+      justify-content: center;
+      padding: 6px 10px;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="title-group">
+        <h1>PC Control Hub</h1>
+        <p>Система удалённого управления и контроля питания</p>
+      </div>
+      <button class="btn btn-success" onclick="alert('Функция добавления нового ПК')">+ Добавить ПК</button>
+    </header>
+
+    <!-- Быстрые глобальные действия -->
+    <div class="global-actions">
+      <button class="btn btn-danger" onclick="powerOffAll()">⚡ Отключить все ПК</button>
+      <button class="btn btn-success" onclick="powerOnAll()">🔌 Включить все (WoL)</button>
+      <button class="btn" onclick="powerOffZone('standard')">🚫 Выключить Стандарт</button>
+      <button class="btn" onclick="powerOffZone('vip')">👑 Выключить VIP</button>
+      <button class="btn" onclick="powerOffZone('duo')">👥 Выключить Duo</button>
+    </div>
+
+    <!-- Секция: Стандарт -->
+    <div class="zone-section" id="zone-standard">
+      <div class="zone-header">
+        <div class="zone-title">
+          <span id="title-standard">Зона «Стандарт»</span>
+          <button class="edit-zone-btn" onclick="renameZone('standard')">✏️ Изменить название</button>
+        </div>
+        <button class="btn btn-danger" style="padding: 4px 10px; font-size: 11px;" onclick="powerOffZone('standard')">Выключить зону</button>
+      </div>
+      <div class="pc-grid">
+        <div class="pc-card online" id="pc-1">
+          <div class="pc-card-header">
+            <span class="pc-name">ПК-01</span>
+            <span class="status-badge online">Online</span>
+          </div>
+          <div class="pc-info">
+            IP: 192.168.1.101<br>
+            MAC: AA:BB:CC:DD:EE:01
+          </div>
+          <div class="pc-actions">
+            <button class="btn btn-danger" onclick="togglePC('pc-1', false)">Выкл</button>
+            <button class="btn btn-success" onclick="togglePC('pc-1', true)">Вкл</button>
+          </div>
+        </div>
+
+        <div class="pc-card online" id="pc-2">
+          <div class="pc-card-header">
+            <span class="pc-name">ПК-02</span>
+            <span class="status-badge online">Online</span>
+          </div>
+          <div class="pc-info">
+            IP: 192.168.1.102<br>
+            MAC: AA:BB:CC:DD:EE:02
+          </div>
+          <div class="pc-actions">
+            <button class="btn btn-danger" onclick="togglePC('pc-2', false)">Выкл</button>
+            <button class="btn btn-success" onclick="togglePC('pc-2', true)">Вкл</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Секция: VIP -->
+    <div class="zone-section" id="zone-vip">
+      <div class="zone-header">
+        <div class="zone-title">
+          <span id="title-vip">Зона «VIP»</span>
+          <button class="edit-zone-btn" onclick="renameZone('vip')">✏️ Изменить название</button>
+        </div>
+        <button class="btn btn-danger" style="padding: 4px 10px; font-size: 11px;" onclick="powerOffZone('vip')">Выключить зону</button>
+      </div>
+      <div class="pc-grid">
+        <div class="pc-card offline" id="pc-3">
+          <div class="pc-card-header">
+            <span class="pc-name">VIP-01</span>
+            <span class="status-badge offline">Offline</span>
+          </div>
+          <div class="pc-info">
+            IP: 192.168.1.201<br>
+            MAC: AA:BB:CC:DD:EE:03
+          </div>
+          <div class="pc-actions">
+            <button class="btn btn-danger" onclick="togglePC('pc-3', false)">Выкл</button>
+            <button class="btn btn-success" onclick="togglePC('pc-3', true)">Вкл</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Секция: Duo -->
+    <div class="zone-section" id="zone-duo">
+      <div class="zone-header">
+        <div class="zone-title">
+          <span id="title-duo">Зона «Duo Room»</span>
+          <button class="edit-zone-btn" onclick="renameZone('duo')">✏️ Изменить название</button>
+        </div>
+        <button class="btn btn-danger" style="padding: 4px 10px; font-size: 11px;" onclick="powerOffZone('duo')">Выключить зону</button>
+      </div>
+      <div class="pc-grid">
+        <div class="pc-card online" id="pc-4">
+          <div class="pc-card-header">
+            <span class="pc-name">DUO-01</span>
+            <span class="status-badge online">Online</span>
+          </div>
+          <div class="pc-info">
+            IP: 192.168.1.301<br>
+            MAC: AA:BB:CC:DD:EE:04
+          </div>
+          <div class="pc-actions">
+            <button class="btn btn-danger" onclick="togglePC('pc-4', false)">Выкл</button>
+            <button class="btn btn-success" onclick="togglePC('pc-4', true)">Вкл</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Изменение статуса отдельного ПК
+    function togglePC(pcId, turnOn) {
+      const card = document.getElementById(pcId);
+      const badge = card.querySelector('.status-badge');
+      
+      if (turnOn) {
+        card.className = 'pc-card online';
+        badge.className = 'status-badge online';
+        badge.innerText = 'Online';
+      } else {
+        card.className = 'pc-card offline';
+        badge.className = 'status-badge offline';
+        badge.innerText = 'Offline';
+      }
+    }
+
+    // Выключение всех ПК в конкретной зоне
+    function powerOffZone(zoneKey) {
+      const zone = document.getElementById(`zone-${zoneKey}`);
+      if (zone) {
+        const cards = zone.querySelectorAll('.pc-card');
+        cards.forEach(card => togglePC(card.id, false));
+      }
+    }
+
+    // Выключить всё
+    function powerOffAll() {
+      document.querySelectorAll('.pc-card').forEach(card => togglePC(card.id, false));
+    }
+
+    // Включить всё
+    function powerOnAll() {
+      document.querySelectorAll('.pc-card').forEach(card => togglePC(card.id, true));
+    }
+
+    // Редактирование названия зоны
+    function renameZone(zoneKey) {
+      const titleElem = document.getElementById(`title-${zoneKey}`);
+      const currentName = titleElem.innerText.replace('Зона «', '').replace('»', '');
+      const newName = prompt('Введите новое название для этой зоны:', currentName);
+      
+      if (newName && newName.trim() !== '') {
+        titleElem.innerText = `Зона «${newName.trim()}»`;
+      }
+    }
+  </script>
+</body>
+</html>
